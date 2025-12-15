@@ -6,6 +6,12 @@ var __inputs: Dictionary[NodePath, Dictionary] = { }
 ## Call depth
 var __cursor: Array[int] = [0]
 
+func _ready() -> void:
+	for child in get_children():
+		push_warning("IMGUI - removing initial children")
+		remove_child(child)
+		child.queue_free()
+
 func _process(_delta: float) -> void:
 	if get_child_count() != 0:
 		end_vbox()
@@ -14,6 +20,56 @@ func _process(_delta: float) -> void:
 	__cursor[0] = 0
 
 	begin_vbox()
+
+
+func begin_tabs() -> void:
+	# TODO: Push zero spacing override here
+	begin_vbox()
+	var current := _get_current_node()
+	if current is not TabBar:
+		_destroy_rest_of_this_layout_level()
+		var tb := TabBar.new()
+		__parent.add_child(tb)
+	
+	__cursor[__cursor.size() - 1] += 1 # Next node
+	
+	begin_panel()
+	__parent.set_meta(&"_imgui_tab_bar", true)
+	__parent.set_meta(&"_imgui_tab_visited", -1)
+
+
+func tab(tab_name: String) -> bool:
+	var tab_container := __parent
+	while tab_container.get_class() != &"PanelContainer" or !tab_container.has_meta(&"_imgui_tab_bar"):
+		tab_container = tab_container.get_parent()
+		assert(tab_container != get_tree().root, "Unclosed `begin_tabs`")
+	
+	var tab_bar: TabBar = tab_container.get_parent().get_child(0)
+	assert(tab_bar)
+	var index: int = tab_container.get_meta(&"_imgui_tab_visited")
+	index += 1
+	if tab_bar.tab_count <= index:
+		tab_bar.add_tab(tab_name)
+	else:
+		if not tab_bar.get_tab_title(index) == tab_name:
+			while tab_bar.tab_count >= index:
+				tab_bar.remove_tab(-1)
+			tab_bar.add_tab(tab_name)
+	
+	tab_container.set_meta(&"_imgui_tab_visited", index)
+	
+	return tab_bar.get_tab_title(tab_bar.current_tab) == tab_name
+
+
+func end_tabs() -> void:
+	if __parent.get_child_count() != __cursor[__cursor.size() - 1]:
+		_destroy_rest_of_this_layout_level()
+	assert(__parent is PanelContainer)
+	end_panel()
+	if __parent.get_child_count() != (__cursor[__cursor.size() - 1] + 1): # +1 for the TabBar?
+		_destroy_rest_of_this_layout_level()
+	assert(__parent is VBoxContainer)
+	end_vbox()
 
 
 func label(text: String) -> void:
@@ -109,6 +165,29 @@ func begin_hbox() -> void:
 
 func end_hbox() -> void:
 	assert(__parent is HBoxContainer)
+	if __parent.get_child_count() != __cursor[__cursor.size() - 1]:
+		_destroy_rest_of_this_layout_level()
+
+	__parent = __parent.get_parent()
+	__cursor.pop_back()
+	__cursor[__cursor.size() - 1] += 1
+
+
+func begin_panel() -> void:
+	var c := _get_current_node()
+	if c is not PanelContainer:
+		_destroy_rest_of_this_layout_level()
+		var grid := PanelContainer.new()
+		grid.name = str(__cursor).validate_node_name()
+		__parent.add_child(grid)
+		c = grid
+
+	__parent = c
+	__cursor.append(0)
+
+
+func end_panel() -> void:
+	assert(__parent is PanelContainer)
 	if __parent.get_child_count() != __cursor[__cursor.size() - 1]:
 		_destroy_rest_of_this_layout_level()
 
