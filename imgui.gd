@@ -74,6 +74,7 @@ func end_tabs() -> void:
 	assert(__parent is VBoxContainer)
 	end_vbox()
 
+
 func progress_bar(value: float, max_val: float, show_percentage: bool = true) -> void:
 	var current := _get_current_node()
 	if current is not ProgressBar:
@@ -81,13 +82,14 @@ func progress_bar(value: float, max_val: float, show_percentage: bool = true) ->
 		var pb := ProgressBar.new()
 		__parent.add_child(pb)
 		current = pb
-	
+
 	current.min_value = 0
 	current.max_value = max_val
 	current.value = value
 	current.show_percentage = show_percentage
-	
+
 	__cursor[__cursor.size() - 1] += 1 # Next node
+
 
 func toggle(on: bool, text: String = "") -> bool:
 	var current := _get_current_node()
@@ -158,6 +160,30 @@ func button(text: String) -> bool:
 
 	__cursor[__cursor.size() - 1] += 1 # Next node
 	return __inputs.erase(np)
+
+
+func dropdown(selected_index: int, options: Array[String]) -> int:
+	var current := _get_current_node()
+	if current is not OptionButton:
+		_destroy_rest_of_this_layout_level()
+		var ob := OptionButton.new()
+		ob.name = str(__cursor).validate_node_name()
+		ob.item_selected.connect(func(_i: int) -> void: _register_dropdown_select(ob))
+		__parent.add_child(ob)
+		current = ob
+
+	for i: int in range(options.size()):
+		var text = options[i]
+		if i < current.item_count:
+			current.set_item_text(i, text)
+		else:
+			current.add_item(text)
+
+	current.selected = __inputs.get(self.get_path_to(current), {}).get("value", selected_index)
+
+	__cursor[__cursor.size() - 1] += 1 # Next node
+
+	return current.selected
 
 
 func begin_vbox() -> void:
@@ -256,6 +282,10 @@ func end_grid() -> void:
 func _register_button_press(b: Button) -> void:
 	var nodepath := self.get_path_to(b)
 	__inputs[nodepath] = { }
+
+
+func _register_dropdown_select(ob: OptionButton) -> void:
+	__inputs[self.get_path_to(ob)] = { "value": ob.selected }
 
 
 func _get_current_node() -> Control:
