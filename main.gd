@@ -6,7 +6,6 @@ func _process(delta: float) -> void:
 	super(delta)
 	frame_number += 1
 	label("Imgui in Godot!")
-	label("Frame: " + str(frame_number))
 	
 	if button("Press me"):
 		print("Action 1!")
@@ -14,3 +13,11 @@ func _process(delta: float) -> void:
 	
 	if button("Press me"):
 		print("Deleting your hard drive rn")
+		
+	
+	begin_grid(2)
+	label("Frame number:")
+	label(str(frame_number))
+	label("OS Name:")
+	label(OS.get_name())
+	end_grid()

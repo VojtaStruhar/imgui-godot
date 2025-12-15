@@ -66,9 +66,32 @@ func end_vbox() -> void:
 	__cursor.pop_back()
 	__cursor[__cursor.size()-1] += 1
 
+
+
+func begin_grid(columns: int) -> void:
+	var c := _get_current_node()
+	if c is not GridContainer:
+		_destroy_rest_of_this_layout_level()
+		var grid := GridContainer.new()
+		grid.name = str(__cursor).validate_node_name()
+		__parent.add_child(grid)
+		c = grid
+	
+	c.columns = columns
+	__parent = c
+	__cursor.append(0)
+
+func end_grid() -> void:
+	assert(__parent is GridContainer)
+	if __parent.get_child_count() != __cursor[__cursor.size()-1]:
+		_destroy_rest_of_this_layout_level()
+	
+	__parent = __parent.get_parent()
+	__cursor.pop_back()
+	__cursor[__cursor.size()-1] += 1
+
 func _register_button_press(b: Button) -> void:
 	var nodepath := self.get_path_to(b)
-	print("Button press ", nodepath)
 	__inputs[nodepath] = {}
 
 func _get_current_node() -> Control:
