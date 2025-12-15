@@ -1,11 +1,14 @@
 extends ImGui
 
 var frame_number: int = 0
+var cheats_enabled := false
 
-var showing_advanced := true
+@onready var timer := Timer.new()
 
 func _ready() -> void:
 	super()
+	timer.one_shot = true
+	get_parent().add_child.call_deferred(timer)
 	
 
 func _process(delta: float) -> void:
@@ -18,20 +21,15 @@ func _process(delta: float) -> void:
 		label("Imgui in Godot!")
 		
 		if button("Press me"):
-			print("Action 1!")
-			label("Press!")
+			timer.start(3)
 		
+		if !timer.is_stopped() and timer.time_left > 0:
+			label("This label wil disappear in  %.2fs" % timer.time_left)
 		
-		separator_h()
-		begin_hbox()
-		label("This button toggles an entire tab:")
-		if button("Hide advanced" if showing_advanced else "Show advanced"):
-			showing_advanced = !showing_advanced
-			
-		end_hbox()
+		cheats_enabled = toggle(cheats_enabled, "Cheats enabled")
 		end_vbox()
 		
-	if showing_advanced:
+	if cheats_enabled:
 		if tab("Game - advanced"):
 			begin_grid(2)
 			label("Frame number:")

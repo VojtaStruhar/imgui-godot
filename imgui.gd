@@ -6,35 +6,35 @@ var __inputs: Dictionary[NodePath, Dictionary] = { }
 ## Call depth
 var __cursor: Array[int] = [0]
 
+
 func _ready() -> void:
 	for child in get_children():
 		push_warning("IMGUI - removing initial children")
 		remove_child(child)
 		child.queue_free()
 
+
 func _process(_delta: float) -> void:
 	assert(__cursor.size() == 1)
 	__cursor[0] = 0
 
 
-
 func begin_tabs() -> void:
-	
 	begin_vbox()
 	# TODO: Refactor styling
 	__parent.add_theme_constant_override("separation", 0)
 	__parent.custom_minimum_size.x = 400
 	__parent.set_anchors_preset(Control.PRESET_FULL_RECT)
 	__parent.alignment = BoxContainer.ALIGNMENT_BEGIN
-		
+
 	var current := _get_current_node()
 	if current is not TabBar:
 		_destroy_rest_of_this_layout_level()
 		var tb := TabBar.new()
 		__parent.add_child(tb)
-	
+
 	__cursor[__cursor.size() - 1] += 1 # Next node
-	
+
 	begin_panel()
 	__parent.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	__parent.set_meta(&"_imgui_tab_bar", true)
@@ -46,7 +46,7 @@ func tab(tab_name: String) -> bool:
 	while tab_container.get_class() != &"PanelContainer" or !tab_container.has_meta(&"_imgui_tab_bar"):
 		tab_container = tab_container.get_parent()
 		assert(tab_container != get_tree().root, "Unclosed `begin_tabs`")
-	
+
 	var tab_bar: TabBar = tab_container.get_parent().get_child(0)
 	assert(tab_bar)
 	var index: int = tab_container.get_meta(&"_imgui_tab_visited")
@@ -58,9 +58,9 @@ func tab(tab_name: String) -> bool:
 			while tab_bar.tab_count > index:
 				tab_bar.remove_tab(tab_bar.tab_count - 1)
 			tab_bar.add_tab(tab_name)
-	
+
 	tab_container.set_meta(&"_imgui_tab_visited", index)
-	
+
 	return tab_bar.get_tab_title(tab_bar.current_tab) == tab_name
 
 
@@ -73,6 +73,22 @@ func end_tabs() -> void:
 		_destroy_rest_of_this_layout_level()
 	assert(__parent is VBoxContainer)
 	end_vbox()
+
+
+func toggle(on: bool, text: String = "") -> bool:
+	var current := _get_current_node()
+	if current is not CheckButton:
+		_destroy_rest_of_this_layout_level()
+		var check := CheckButton.new()
+		check.text = text
+		check.button_pressed = on
+		check.name = str(__cursor).validate_node_name()
+		__parent.add_child(check)
+		current = check
+
+	__cursor[__cursor.size() - 1] += 1 # Next node
+
+	return current.button_pressed
 
 
 func label(text: String) -> void:
