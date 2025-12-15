@@ -1,10 +1,11 @@
 extends ImGui
 
 var frame_number: int = 0
-var cheats_enabled := false
+var show_advanced := true
 
 var resource_options: Array[String] = ["Wisdom", "Gear", "Mana"]
 var resource_selected := 0
+
 
 @onready var timer := Timer.new()
 
@@ -24,7 +25,7 @@ func _process(delta: float) -> void:
 	if tab("Game"):
 		_game_tab()
 		
-	if cheats_enabled:
+	if show_advanced:
 		if tab("Game - advanced"):
 			_advanced_tab()
 	
@@ -45,7 +46,7 @@ func _game_tab() -> void:
 	if !timer.is_stopped() and timer.time_left > 0:
 		label("This label wil disappear in  %.2fs" % timer.time_left)
 	
-	cheats_enabled = toggle(cheats_enabled, "Cheats enabled")
+	show_advanced = toggle(show_advanced, "Show Advanced")
 	end_vbox()
 
 func _advanced_tab() -> void:
@@ -61,4 +62,5 @@ func _advanced_tab() -> void:
 	end_grid()
 	
 	label("+100 %s" % resource_options[resource_selected])
+	resource_selected = spinbox(resource_selected, 0, resource_options.size() - 1)
 	end_vbox()

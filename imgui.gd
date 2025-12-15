@@ -184,6 +184,26 @@ func dropdown(selected_index: int, options: Array[String]) -> int:
 	__cursor[__cursor.size() - 1] += 1 # Next node
 
 	return current.selected
+	
+	
+func spinbox(value: int, min_val: int, max_val: int, step: int = 1) -> int:
+	var current := _get_current_node()
+	if current is not SpinBox:
+		_destroy_rest_of_this_layout_level()
+		var sb := SpinBox.new()
+		sb.name = str(__cursor).validate_node_name()
+		sb.value_changed.connect(func(_v: float) -> void: _register_spinbox_change(sb))
+		__parent.add_child(sb)
+		current = sb
+	
+	current.set_value_no_signal(__inputs.get(self.get_path_to(current), {}).get("value", value))
+	current.min_value = min_val
+	current.max_value = max_val
+	current.step = step
+
+	__cursor[__cursor.size() - 1] += 1 # Next node
+
+	return current.value
 
 
 func begin_vbox() -> void:
@@ -280,12 +300,15 @@ func end_grid() -> void:
 
 
 func _register_button_press(b: Button) -> void:
-	var nodepath := self.get_path_to(b)
-	__inputs[nodepath] = { }
+	__inputs[self.get_path_to(b)] = { }
 
 
 func _register_dropdown_select(ob: OptionButton) -> void:
 	__inputs[self.get_path_to(ob)] = { "value": ob.selected }
+
+
+func _register_spinbox_change(sb: SpinBox) -> void:
+	__inputs[self.get_path_to(sb)] = { "value": sb.value }
 
 
 func _get_current_node() -> Control:
