@@ -13,13 +13,9 @@ func _ready() -> void:
 		child.queue_free()
 
 func _process(_delta: float) -> void:
-	if get_child_count() != 0:
-		end_vbox()
-
 	assert(__cursor.size() == 1)
 	__cursor[0] = 0
 
-	begin_vbox()
 
 
 func begin_tabs() -> void:
