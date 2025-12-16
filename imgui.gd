@@ -245,6 +245,7 @@ func slider_h(value: float, min_val: float, max_val: float, step: float = 1) -> 
 		var hs := HSlider.new()
 		hs.custom_minimum_size.x = 150
 		hs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		hs.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		hs.name = str(__cursor).validate_node_name()
 		hs.value_changed.connect(_register_spinbox_change.bind(hs))
 		__parent.add_child(hs)
