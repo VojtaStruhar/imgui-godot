@@ -6,6 +6,12 @@ var show_advanced := true
 var resource_options: Array[String] = ["Wisdom", "Gear", "Mana"]
 var resource_selected := 0
 var server: String = "https://server.vojtechstruhar.com"
+var probabilities: Dictionary[String, float] = {
+	"common": 0.9,
+	"rare": 0.5,
+	"epic": 0.2,
+	"legendary": 0.05,
+}
 
 @onready var timer := Timer.new()
 
@@ -59,13 +65,31 @@ func _game_tab() -> void:
 		end_vbox()
 	
 	if tab("Configuration"):
+		begin_vbox()
 		begin_grid(2)
 		label("Server address:")
 		server = textfield(server)
 		label("One more:")
 		server = textfield(server)
-		
 		end_grid()
+		
+		separator_h()
+		
+		begin_panel()
+		begin_margin(10)
+		begin_vbox()
+		label("Drop chances")
+		var total: float = probabilities.values().reduce(func(a: float, b: float): return a + b, 0.0)
+		begin_grid(3)
+		for key in probabilities:
+			label(key.capitalize())
+			probabilities[key] = slider_h(probabilities[key], 0.0, 1.0, 0.01)
+			label("%.2f%%" % (100.0 * probabilities[key] / total))
+		end_grid()
+		end_vbox()
+		end_margin()
+		end_panel()
+		end_vbox()
 	
 	end_margin()
 	end_tabs()

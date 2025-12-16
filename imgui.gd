@@ -217,14 +217,35 @@ func spinbox(value: int, min_val: int, max_val: int, step: int = 1) -> int:
 		_destroy_rest_of_this_layout_level()
 		var sb := SpinBox.new()
 		sb.name = str(__cursor).validate_node_name()
-		sb.value_changed.connect(func(_v: float) -> void: _register_spinbox_change(sb))
+		sb.value_changed.connect(_register_spinbox_change.bind(sb))
 		__parent.add_child(sb)
 		current = sb
 	
-	current.set_value_no_signal(__inputs.get(self.get_path_to(current), {}).get("value", value))
 	current.min_value = min_val
 	current.max_value = max_val
 	current.step = step
+	current.set_value_no_signal(__inputs.get(self.get_path_to(current), {}).get("value", value))
+
+	__cursor[__cursor.size() - 1] += 1 # Next node
+
+	return current.value
+
+func slider_h(value: float, min_val: float, max_val: float, step: float = 1) -> float:
+	var current := _get_current_node()
+	if current is not HSlider:
+		_destroy_rest_of_this_layout_level()
+		var hs := HSlider.new()
+		hs.custom_minimum_size.x = 150
+		hs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		hs.name = str(__cursor).validate_node_name()
+		hs.value_changed.connect(_register_spinbox_change.bind(hs))
+		__parent.add_child(hs)
+		current = hs
+	
+	current.min_value = min_val
+	current.max_value = max_val
+	current.step = step
+	current.set_value_no_signal(__inputs.get(self.get_path_to(current), {}).get("value", value))
 
 	__cursor[__cursor.size() - 1] += 1 # Next node
 
@@ -367,8 +388,8 @@ func _register_dropdown_select(ob: OptionButton) -> void:
 	__inputs[self.get_path_to(ob)] = { "value": ob.selected }
 
 
-func _register_spinbox_change(sb: SpinBox) -> void:
-	__inputs[self.get_path_to(sb)] = { "value": sb.value }
+func _register_spinbox_change(new_value: float, origin: Control) -> void:
+	__inputs[self.get_path_to(origin)] = { "value": new_value }
 
 
 func _get_current_node() -> Control:
