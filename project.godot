@@ -14,3 +14,8 @@ config/name="imgui-godot"
 run/main_scene="uid://bv12a7irye02g"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=960
+window/size/viewport_height=540

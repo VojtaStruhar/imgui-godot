@@ -37,7 +37,7 @@ Some features have different names to be familiar to Godot developers._
   - [x] Margin
   - [x] Panel
   - [ ] Flow
-  - [ ] Tabs
+  - [x] Tabs
   - [ ] Scroll
   - [ ] Foldable
   - [ ] Split container
@@ -50,7 +50,7 @@ Some features have different names to be familiar to Godot developers._
   - [x] Combo box (OptionButton)
   - [x] Toggle
   - [ ] Checkbox
-  - [ ] Separators
+  - [x] Separators
   - [ ] Sliders
   - [ ] Text area
   - [ ] Color picker

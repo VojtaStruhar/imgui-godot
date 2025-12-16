@@ -50,7 +50,6 @@ func _game_tab() -> void:
 	begin_tabs()
 	begin_margin(10)
 	
-	
 	if tab("Basic"):
 		begin_vbox()
 		progress_bar(frame_number % 1000, 1000)
@@ -69,11 +68,9 @@ func _game_tab() -> void:
 		begin_grid(2)
 		label("Server address:")
 		server = textfield(server)
-		label("One more:")
-		server = textfield(server)
 		end_grid()
 		
-		separator_h()
+		separator()
 		
 		begin_panel()
 		begin_margin(10)

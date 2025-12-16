@@ -120,20 +120,28 @@ func label(text: String) -> void:
 	current.text = text
 	__cursor[__cursor.size() - 1] += 1 # Next node
 
+func separator() -> void:
+	match __parent.get_class():
+		&"HBoxContainer", &"HFlowContainer":
+			separator_v()
+		&"VBoxContainer", &"VFlowContainer":
+			separator_h()
+		_:
+			breakpoint
 
-func separator_h() -> void:
+func separator_v() -> void:
 	var current := _get_current_node()
-	if current is not HSeparator:
+	if current is not VSeparator:
 		_destroy_rest_of_this_layout_level()
-		var hs := HSeparator.new()
-		hs.name = str(__cursor).validate_node_name()
-		__parent.add_child(hs)
-		current = hs
+		var vs := VSeparator.new()
+		vs.name = str(__cursor).validate_node_name()
+		__parent.add_child(vs)
+		current = vs
 
 	__cursor[__cursor.size() - 1] += 1 # Next node
 
 
-func separator_v() -> void:
+func separator_h() -> void:
 	var current := _get_current_node()
 	if current is not HSeparator:
 		_destroy_rest_of_this_layout_level()
@@ -376,7 +384,7 @@ func end_grid() -> void:
 	__cursor.pop_back()
 	__cursor[__cursor.size() - 1] += 1
 
-
+# -------------------- UTILITIES -------------------- #
 
 func _register_button_press(b: Button) -> void:
 	__inputs[self.get_path_to(b)] = { }
