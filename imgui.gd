@@ -219,6 +219,35 @@ func textfield(text: String) -> String:
 	
 	return current.text
 
+## Multiline text field
+func textedit(text: String) -> String:
+	var current := _get_current_node()
+	if current is not TextEdit:
+		_destroy_rest_of_this_layout_level()
+		var te := TextEdit.new()
+		te.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		te.custom_minimum_size.y = 100
+		te.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+		te.backspace_deletes_composite_character_enabled = true
+		te.scroll_fit_content_height = true
+		te.name = str(__cursor).validate_node_name()
+		te.text_changed.connect(_register_textedit_input.bind(te))
+		__parent.add_child(te)
+		current = te
+	
+	var np := self.get_path_to(current)
+	if __inputs.has(np):
+		__inputs.erase(np)
+	else:
+		# Setting text on a focused line edit messes with cursor
+		# Also unnecessary text updates cause re-renders
+		if not current.has_focus() and current.text != text: 
+			current.text = text
+	
+	__cursor[__cursor.size() - 1] += 1 # Next node
+	
+	return current.text
+
 
 func dropdown(selected_index: int, options: Array[String]) -> int:
 	var current := _get_current_node()
@@ -237,7 +266,9 @@ func dropdown(selected_index: int, options: Array[String]) -> int:
 		else:
 			current.add_item(text)
 
-	current.selected = __inputs.get(self.get_path_to(current), {}).get("value", selected_index)
+	var np = self.get_path_to(current)
+	if not __inputs.erase(np): # Means that there is no input
+		(current as OptionButton).selected = selected_index
 
 	__cursor[__cursor.size() - 1] += 1 # Next node
 
@@ -257,7 +288,10 @@ func spinbox(value: int, min_val: int, max_val: int, step: int = 1) -> int:
 	current.min_value = min_val
 	current.max_value = max_val
 	current.step = step
-	current.set_value_no_signal(__inputs.get(self.get_path_to(current), {}).get("value", value))
+	
+	var np = self.get_path_to(current)
+	if not __inputs.erase(np): # Means that there is no input
+		current.set_value_no_signal(value)
 
 	__cursor[__cursor.size() - 1] += 1 # Next node
 
@@ -447,6 +481,9 @@ func _register_button_toggle(new_value: bool, b: BaseButton) -> void:
 
 func _register_textfield_input(new_text: String, le: LineEdit) -> void:
 	__inputs[self.get_path_to(le)] = { "value": new_text }
+
+func _register_textedit_input(te: TextEdit) -> void:
+	__inputs[self.get_path_to(te)] = { "value": te.text }
 
 func _register_dropdown_select(ob: OptionButton) -> void:
 	__inputs[self.get_path_to(ob)] = { "value": ob.selected }

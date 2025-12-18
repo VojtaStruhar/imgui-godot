@@ -15,6 +15,9 @@ var probabilities: Dictionary[String, float] = {
 	"legendary": 0.05,
 }
 
+var user_name: String = ""
+var user_bio: String = ""
+
 @onready var timer := Timer.new()
 @onready var g: ImGui = $Imgui
 
@@ -49,6 +52,15 @@ func _process(_delta: float) -> void:
 			g.end_vbox()
 		
 		g.end_hbox()
+		g.begin_grid(2)
+		for i in range(2):
+			g.label("Username:")
+			user_name = g.textfield(user_name)
+		g.end_grid()
+		
+		user_bio = g.textedit(user_bio)
+		g.label(user_bio)
+		
 		g.end_vbox()
 		
 	

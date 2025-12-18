@@ -52,7 +52,7 @@ Some features have different names to be familiar to Godot developers._
   - [x] Checkbox
   - [x] Separators
   - [x] Sliders
-  - [ ] Text area
+  - [x] Text area (TextEdit)
   - [ ] Color picker
 - [ ] Styling
   - [ ] [Theme variations](https://docs.godotengine.org/en/stable/tutorials/ui/gui_theme_type_variations.html)
