@@ -63,7 +63,7 @@ Some features have different names to be familiar to Godot developers._
     - [ ] Font color
   - [ ] Minimum Control size
   - [ ] Anchor presets / Expand flags
-  - [ ] Label styling (text alignment, colors, font size)
+  - [x] Label text alignment
   - [ ] Rich text label
   - [ ] Container spacing
   - [ ] Tooltips

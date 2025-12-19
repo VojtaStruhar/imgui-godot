@@ -73,7 +73,7 @@ func _process(_delta: float) -> void:
 func _game_tab() -> void:
 	g.begin_vbox()
 	
-	g.label("Imgui in Godot!")
+	g.label("Imgui in Godot!", HorizontalAlignment.HORIZONTAL_ALIGNMENT_CENTER)
 	
 	g.begin_tabs()
 	g.begin_margin(10)

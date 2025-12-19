@@ -192,7 +192,7 @@ func checkbox(on: bool, text: String = "") -> bool:
 	return current.button_pressed
 
 
-func label(text: String) -> void:
+func label(text: String, alignment: HorizontalAlignment = HorizontalAlignment.HORIZONTAL_ALIGNMENT_LEFT) -> void:
 	var current := _get_current_node()
 	if current is not Label:
 		_destroy_rest_of_this_layout_level()
@@ -203,6 +203,7 @@ func label(text: String) -> void:
 		current = l
 
 	_apply_styling(current)
+	current.horizontal_alignment = alignment
 	current.text = text
 	__cursor[__cursor.size() - 1] += 1 # Next node
 
