@@ -47,9 +47,8 @@ func _process(_delta: float) -> void:
 		g.begin_hbox()
 		g.label("Music volume")
 		for i in range(4):
-			g.push_min_size(50, 150)
+			g.next_min_size(50, 150)
 			g.begin_vbox()
-			g.pop_minimum_size()
 			music_volume = g.slider_v(music_volume, 40, 120)
 			g.label("%ddb" % music_volume)
 			g.end_vbox()

@@ -3,10 +3,13 @@ extends Container
 
 var __parent: Control = self
 var __inputs: Dictionary[NodePath, Dictionary] = { }
-## Call depth
+# Call depth
 var __cursor: Array[int] = [0]
 var __theme_variations_stack: Array[String] = []
+# Applies minimum size to ALL elements, until popped.
 var __min_size_stack: Array[Vector2] = []
+var __next_min_size_stack: Array[Vector2] = []
+
 
 @export_group("Defaults", "_default")
 @export var _default_slider_v_height: float = 50
@@ -37,23 +40,30 @@ func pop_variation(count: int = 1) -> void:
 		assert(not __theme_variations_stack.is_empty(), "Attempted to pop empty stack")
 		__theme_variations_stack.pop_back()
 
+## Set minimum size of the [i]next[/i] element that will be created. Also see [method ImGui.push_min_size].
+func next_min_size(min_width: float, min_height: float) -> void:
+	__next_min_size_stack.append(Vector2(min_width, min_height))
+
+## Convenience method for [method ImGui.next_min_size]
+func next_min_height(min_height: float) -> void:
+	next_min_size(0, min_height)
+
+## Convenience method for [method ImGui.next_min_size]
+func next_min_width(min_width: float) -> void:
+	next_min_size(min_width, 0)
+
 ## All future [Control]s created with this ImGui will get [param min_size] assigned to
 ## [member Control.custom_minimum_size] until it is popped with [method ImGui.pop_minimum_size].
 func push_min_size(min_width: float, min_height: float) -> void:
-	push_min_size_v(Vector2(min_width, min_height))
-
-## Underlying implementation for [method ImGui.push_min_size], [method ImGui.push_min_height] 
-## and [method ImGui.push_min_width].
-func push_min_size_v(min_size: Vector2) -> void:
-	__min_size_stack.append(min_size)
+	__min_size_stack.append(Vector2(min_width, min_height))
 
 ## Convenience method for [method ImGui.push_min_size]
 func push_min_height(min_height: float) -> void:
-	push_min_size_v(Vector2(0, min_height))
+	push_min_size(0, min_height)
 
 ## Convenience method for [method ImGui.push_min_size]
 func push_min_width(min_width: float) -> void:
-	push_min_size_v(Vector2(min_width, 0))
+	push_min_size(min_width, 0)
 
 func pop_minimum_size(count: int = 1) -> void:
 	assert(count >= 1)
@@ -607,4 +617,7 @@ func _destroy_rest_of_this_layout_level() -> void:
 
 func _apply_styling(element: Control) -> void:
 	element.theme_type_variation = "" if __theme_variations_stack.is_empty() else __theme_variations_stack.back()
-	element.custom_minimum_size = Vector2.ZERO if __min_size_stack.is_empty() else __min_size_stack.back()
+	if not __next_min_size_stack.is_empty():
+		element.custom_minimum_size = __next_min_size_stack.pop_back()
+	else:
+		element.custom_minimum_size = Vector2.ZERO if __min_size_stack.is_empty() else __min_size_stack.back()
