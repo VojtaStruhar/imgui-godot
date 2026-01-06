@@ -22,6 +22,7 @@ var user_logged_in: bool = true
 @onready var timer := Timer.new()
 @onready var g: ImGui = $Imgui
 
+var fold_group := FoldableGroup.new()
 
 
 func _ready() -> void:
@@ -75,77 +76,80 @@ func _game_tab() -> void:
 	
 	g.label("Imgui in Godot!", HorizontalAlignment.HORIZONTAL_ALIGNMENT_CENTER)
 	
-	g.begin_tabs()
 	g.begin_margin(10)
+	g.begin_vbox()
 	
-	if g.tab("Basic"):
-		g.begin_vbox()
-		g.progress_bar(frame_number % 1000, 1000)
-		
-		if g.button("Press me"):
-			timer.start(3)
-		
-		if !timer.is_stopped() and timer.time_left > 0:
-			g.label("This label wil disappear in  %.2fs" % timer.time_left)
-		
-		show_advanced = g.toggle(show_advanced, "Show Advanced")
-		show_advanced = g.checkbox(show_advanced, "Show Advanced")
-		g.end_vbox()
+	g.begin_foldable("Basic", fold_group)
+	g.begin_vbox()
+	g.progress_bar(frame_number % 1000, 1000)
 	
-	if g.tab("Configuration"):
-		g.begin_vbox()
-		
-		g.separator()
-		
-		g.begin_panel()
-		g.begin_margin(10)
-		g.begin_vbox()
-		g.label("Drop chances")
-		var total: float = probabilities.values().reduce(func(a: float, b: float): return a + b, 0.0)
-		g.begin_grid(3)
-		for key in probabilities:
-			g.label(key.capitalize())
-			probabilities[key] = g.slider_h(probabilities[key], 0.0, 1.0, 0.01)
-			g.label("%.2f%%" % (100.0 * probabilities[key] / total))
-		g.end_grid()
-		g.end_vbox()
-		g.end_margin()
-		g.end_panel()
-		g.end_vbox()
+	if g.button("Press me"):
+		timer.start(3)
 	
-	if g.tab("Online"):
-		g.begin_vbox()
-		
-		g.begin_grid(2)
-		g.label("Connected to server:")
-		g.label("Yes" if server else "No")
-		g.label("User logged in:")
-		g.label("Yes" if user_logged_in else "No")
-		g.end_grid()
-		
-		if g.button("Disconnect from server", server != ""):
-			user_logged_in = false
-			server = ""
-		if g.button("Log out", server and user_logged_in):
-			user_logged_in = false
-		if g.button("Reconnect", server != "" and user_logged_in == false):
-			user_logged_in = true
-		
-		g.separator()
-		
-		g.begin_grid(2)
-		g.label("Server address:")
-		server = g.textfield(server)
-		g.end_grid()
-		if server == "":
-			g.push_variation(&"Label_Error")
-			g.label("Server address must not be empty!")
-			g.pop_variation()
-		g.end_vbox()
-		
+	if !timer.is_stopped() and timer.time_left > 0:
+		g.label("This label wil disappear in  %.2fs" % timer.time_left)
 	
+	show_advanced = g.toggle(show_advanced, "Show Advanced")
+	show_advanced = g.checkbox(show_advanced, "Show Advanced")
+	g.end_vbox()
+	g.end_foldable()
+	
+	g.begin_foldable("Configuration", fold_group)
+	g.begin_vbox()
+	
+	g.separator()
+	
+	g.begin_panel()
+	g.begin_margin(10)
+	g.begin_vbox()
+	g.label("Drop chances")
+	var total: float = probabilities.values().reduce(func(a: float, b: float): return a + b, 0.0)
+	g.begin_grid(3)
+	for key in probabilities:
+		g.label(key.capitalize())
+		probabilities[key] = g.slider_h(probabilities[key], 0.0, 1.0, 0.01)
+		g.label("%.2f%%" % (100.0 * probabilities[key] / total))
+	g.end_grid()
+	g.end_vbox()
 	g.end_margin()
-	g.end_tabs()
+	g.end_panel()
+	g.end_vbox()
+	g.end_foldable()
+	
+	g.begin_foldable("Online", fold_group)
+	g.begin_vbox()
+
+	g.begin_grid(2)
+	g.label("Connected to server:")
+	g.label("Yes" if server else "No")
+	g.label("User logged in:")
+	g.label("Yes" if user_logged_in else "No")
+	g.end_grid()
+
+	if g.button("Disconnect from server", server != ""):
+		user_logged_in = false
+		server = ""
+	if g.button("Log out", server and user_logged_in):
+		user_logged_in = false
+	if g.button("Reconnect", server != "" and user_logged_in == false):
+		user_logged_in = true
+
+	g.separator()
+
+	g.begin_grid(2)
+	g.label("Server address:")
+	server = g.textfield(server)
+	g.end_grid()
+	if server == "":
+		g.push_variation(&"Label_Error")
+		g.label("Server address must not be empty!")
+		g.pop_variation()
+	g.end_vbox()
+	g.end_foldable()
+		
+	
+	g.end_vbox()
+	g.end_margin()
 	
 	g.end_vbox()
 

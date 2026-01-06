@@ -569,6 +569,30 @@ func end_grid() -> void:
 	__cursor.pop_back()
 	__cursor[__cursor.size() - 1] += 1
 
+func begin_foldable(title: String, foldable_group: FoldableGroup = null):
+	var current := _get_current_node()
+	if current is not FoldableContainer:
+		_destroy_rest_of_this_layout_level()
+		var fold := FoldableContainer.new()
+		fold.name = str(__cursor).validate_node_name()
+		__parent.add_child(fold)
+		current = fold
+	
+	_apply_styling(current)
+	current.title = title
+	current.foldable_group = foldable_group
+	__parent = current
+	__cursor.append(0)
+
+func end_foldable() -> void:
+	assert(__parent is FoldableContainer)
+	if __parent.get_child_count() != __cursor[__cursor.size() - 1]:
+		_destroy_rest_of_this_layout_level()
+
+	__parent = __parent.get_parent()
+	__cursor.pop_back()
+	__cursor[__cursor.size() - 1] += 1
+
 # -------------------- UTILITIES -------------------- #
 
 func _register_button_press(b: Button) -> void:
